@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.demo.dao.ArticleMapper" >
+	<cache eviction="LRU" type="com.demo.redis.RedisCache"/>
+  <resultMap id="BaseResultMap" type="com.demo.bean.Article" >
+    <id column="article_id" property="articleId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="article_views" property="articleViews" jdbcType="INTEGER" />
+    <result column="article_comment_count" property="articleCommentCount" jdbcType="INTEGER" />
+    <result column="article_date" property="articleDate" jdbcType="TIMESTAMP" />
+    <result column="article_like_count" property="articleLikeCount" jdbcType="INTEGER" />
+    <result column="sort_id" property="sortId" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.demo.bean.ArticleWithBLOBs" extends="BaseResultMap" >
+    <result column="article_title" property="articleTitle" jdbcType="LONGVARCHAR" />
+    <result column="article_content" property="articleContent" jdbcType="LONGVARCHAR" />
+    <result column="article_text" property="articleText" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    article_id, user_id, article_views, article_comment_count, article_date, article_like_count, 
+    sort_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    article_title, article_content, article_text
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.demo.bean.ArticleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from zj_articles
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.demo.bean.ArticleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from zj_articles
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from zj_articles
+    where article_id = #{articleId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from zj_articles
+    where article_id = #{articleId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.demo.bean.ArticleExample" >
+    delete from zj_articles
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.demo.bean.ArticleWithBLOBs" >
+    insert into zj_articles (article_id, user_id, article_views, 
+      article_comment_count, article_date, article_like_count, 
+      sort_id, article_title, article_content, 
+      article_text)
+    values (#{articleId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{articleViews,jdbcType=INTEGER}, 
+      #{articleCommentCount,jdbcType=INTEGER}, #{articleDate,jdbcType=TIMESTAMP}, #{articleLikeCount,jdbcType=INTEGER}, 
+      #{sortId,jdbcType=INTEGER}, #{articleTitle,jdbcType=LONGVARCHAR}, #{articleContent,jdbcType=LONGVARCHAR}, 
+      #{articleText,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.demo.bean.ArticleWithBLOBs" >
+    insert into zj_articles
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="articleId != null" >
+        article_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="articleViews != null" >
+        article_views,
+      </if>
+      <if test="articleCommentCount != null" >
+        article_comment_count,
+      </if>
+      <if test="articleDate != null" >
+        article_date,
+      </if>
+      <if test="articleLikeCount != null" >
+        article_like_count,
+      </if>
+      <if test="sortId != null" >
+        sort_id,
+      </if>
+      <if test="articleTitle != null" >
+        article_title,
+      </if>
+      <if test="articleContent != null" >
+        article_content,
+      </if>
+      <if test="articleText != null" >
+        article_text,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="articleId != null" >
+        #{articleId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="articleViews != null" >
+        #{articleViews,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommentCount != null" >
+        #{articleCommentCount,jdbcType=INTEGER},
+      </if>
+      <if test="articleDate != null" >
+        #{articleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleLikeCount != null" >
+        #{articleLikeCount,jdbcType=INTEGER},
+      </if>
+      <if test="sortId != null" >
+        #{sortId,jdbcType=INTEGER},
+      </if>
+      <if test="articleTitle != null" >
+        #{articleTitle,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="articleContent != null" >
+        #{articleContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="articleText != null" >
+        #{articleText,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.demo.bean.ArticleExample" resultType="java.lang.Integer" >
+    select count(*) from zj_articles
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update zj_articles
+    <set >
+      <if test="record.articleId != null" >
+        article_id = #{record.articleId,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleViews != null" >
+        article_views = #{record.articleViews,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleCommentCount != null" >
+        article_comment_count = #{record.articleCommentCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleDate != null" >
+        article_date = #{record.articleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.articleLikeCount != null" >
+        article_like_count = #{record.articleLikeCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.sortId != null" >
+        sort_id = #{record.sortId,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleTitle != null" >
+        article_title = #{record.articleTitle,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.articleContent != null" >
+        article_content = #{record.articleContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.articleText != null" >
+        article_text = #{record.articleText,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update zj_articles
+    set article_id = #{record.articleId,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=INTEGER},
+      article_views = #{record.articleViews,jdbcType=INTEGER},
+      article_comment_count = #{record.articleCommentCount,jdbcType=INTEGER},
+      article_date = #{record.articleDate,jdbcType=TIMESTAMP},
+      article_like_count = #{record.articleLikeCount,jdbcType=INTEGER},
+      sort_id = #{record.sortId,jdbcType=INTEGER},
+      article_title = #{record.articleTitle,jdbcType=LONGVARCHAR},
+      article_content = #{record.articleContent,jdbcType=LONGVARCHAR},
+      article_text = #{record.articleText,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update zj_articles
+    set article_id = #{record.articleId,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=INTEGER},
+      article_views = #{record.articleViews,jdbcType=INTEGER},
+      article_comment_count = #{record.articleCommentCount,jdbcType=INTEGER},
+      article_date = #{record.articleDate,jdbcType=TIMESTAMP},
+      article_like_count = #{record.articleLikeCount,jdbcType=INTEGER},
+      sort_id = #{record.sortId,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.demo.bean.ArticleWithBLOBs" >
+    update zj_articles
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="articleViews != null" >
+        article_views = #{articleViews,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommentCount != null" >
+        article_comment_count = #{articleCommentCount,jdbcType=INTEGER},
+      </if>
+      <if test="articleDate != null" >
+        article_date = #{articleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleLikeCount != null" >
+        article_like_count = #{articleLikeCount,jdbcType=INTEGER},
+      </if>
+      <if test="sortId != null" >
+        sort_id = #{sortId,jdbcType=INTEGER},
+      </if>
+      <if test="articleTitle != null" >
+        article_title = #{articleTitle,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="articleContent != null" >
+        article_content = #{articleContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="articleText != null" >
+        article_text = #{articleText,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where article_id = #{articleId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.demo.bean.ArticleWithBLOBs" >
+    update zj_articles
+    set user_id = #{userId,jdbcType=INTEGER},
+      article_views = #{articleViews,jdbcType=INTEGER},
+      article_comment_count = #{articleCommentCount,jdbcType=INTEGER},
+      article_date = #{articleDate,jdbcType=TIMESTAMP},
+      article_like_count = #{articleLikeCount,jdbcType=INTEGER},
+      sort_id = #{sortId,jdbcType=INTEGER},
+      article_title = #{articleTitle,jdbcType=LONGVARCHAR},
+      article_content = #{articleContent,jdbcType=LONGVARCHAR},
+      article_text = #{articleText,jdbcType=LONGVARCHAR}
+    where article_id = #{articleId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.demo.bean.Article" >
+    update zj_articles
+    set user_id = #{userId,jdbcType=INTEGER},
+      article_views = #{articleViews,jdbcType=INTEGER},
+      article_comment_count = #{articleCommentCount,jdbcType=INTEGER},
+      article_date = #{articleDate,jdbcType=TIMESTAMP},
+      article_like_count = #{articleLikeCount,jdbcType=INTEGER},
+      sort_id = #{sortId,jdbcType=INTEGER}
+    where article_id = #{articleId,jdbcType=INTEGER}
+  </update>
+</mapper>
